@@ -7,4 +7,5 @@ export interface TestApi {
   sleep(ms: number): Promise<void>;
   waitForAbort(signal: AbortSignal): Promise<string>;
   progress(steps: number): AsyncGenerator<number>;
+  slowThreadId(ms: number): Promise<number>;
 }

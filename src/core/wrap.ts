@@ -24,6 +24,26 @@ const STREAM = Symbol('workerHelper.stream');
 type RemoteIterator = AsyncIterableIterator<unknown> & { [STREAM]: true };
 
 /**
+ * A call's result is a regular Promise that is also async-iterable, so
+ * streaming methods can be used directly with `for await`.
+ * @internal
+ */
+export function callResult(promise: Promise<unknown>, method: string): Promise<unknown> & AsyncIterable<unknown> {
+  return Object.assign(promise, {
+    [Symbol.asyncIterator](): AsyncIterator<unknown> {
+      const stream = promise.then((value) => {
+        if ((value as RemoteIterator | undefined)?.[STREAM]) return value as RemoteIterator;
+        throw new TypeError(`${method}() did not return an async iterable`);
+      });
+      return {
+        next: () => stream.then((it) => it.next()),
+        return: () => stream.then((it) => it.return!(), () => ({ value: undefined, done: true })),
+      };
+    },
+  });
+}
+
+/**
  * Create a typed proxy for the API exposed on the other side of `target`.
  *
  * @example
@@ -196,26 +216,6 @@ export function wrap<T>(target: MessageTarget): Remote<T> {
     };
   }
 
-  /**
-   * A call's result is a regular Promise that is also async-iterable, so
-   * streaming methods can be used directly with `for await`.
-   */
-  function invoke(method: string, args: unknown[]): Promise<unknown> & AsyncIterable<unknown> {
-    const promise = call(method, args);
-    return Object.assign(promise, {
-      [Symbol.asyncIterator](): AsyncIterator<unknown> {
-        const stream = promise.then((value) => {
-          if ((value as RemoteIterator | undefined)?.[STREAM]) return value as RemoteIterator;
-          throw new TypeError(`${method}() did not return an async iterable`);
-        });
-        return {
-          next: () => stream.then((it) => it.next()),
-          return: () => stream.then((it) => it.return!(), () => ({ value: undefined, done: true })),
-        };
-      },
-    });
-  }
-
   const methods = new Map<string, (...args: unknown[]) => unknown>();
 
   return new Proxy({} as Remote<T>, {
@@ -231,7 +231,7 @@ export function wrap<T>(target: MessageTarget): Remote<T> {
       if (typeof prop !== 'string' || prop === 'then') return undefined;
       let fn = methods.get(prop);
       if (!fn) {
-        fn = (...args) => invoke(prop, args);
+        fn = (...args) => callResult(call(prop, args), prop);
         methods.set(prop, fn);
       }
       return fn;

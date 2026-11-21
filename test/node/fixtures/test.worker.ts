@@ -16,6 +16,7 @@ expose<TestApi>({
   },
   crash: (code) => process.exit(code),
   sleep: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
+  slowThreadId: (ms) => new Promise((resolve) => setTimeout(() => resolve(threadId), ms)),
   async *progress(steps) {
     for (let i = 1; i <= steps; i++) yield i / steps;
   },
