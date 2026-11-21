@@ -6,4 +6,5 @@ export interface TestApi {
   crash(code: number): void;
   sleep(ms: number): Promise<void>;
   waitForAbort(signal: AbortSignal): Promise<string>;
+  progress(steps: number): AsyncGenerator<number>;
 }

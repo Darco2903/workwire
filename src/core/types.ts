@@ -10,9 +10,24 @@ export type Contract<T> = { [K in keyof T]: AnyFunction };
 /** Calling side symbol that releases the remote (and terminates the worker). */
 export const release: unique symbol = Symbol.for('workerHelper.release');
 
-/** Promise-returning version of one contract method. */
+/**
+ * Caller-side result of a method that returns an async iterable (e.g. an
+ * `async function*`). Consume it with `for await`; values are pulled from the
+ * worker one at a time.
+ */
+export type RemoteStream<T> = AsyncIterable<T>;
+
+/**
+ * Caller-side version of one contract method:
+ * - returns an async iterable → `(...args) => RemoteStream<Y>`
+ * - anything else            → `(...args) => Promise<Awaited<R>>`
+ */
 export type RemoteMethod<F> = F extends (...args: infer A) => infer R
-  ? (...args: A) => Promise<Awaited<R>>
+  ? [Awaited<R>] extends [never]
+    ? (...args: A) => Promise<never> // always throws; `never` would otherwise match any branch
+    : [Awaited<R>] extends [AsyncIterable<infer Y>]
+      ? (...args: A) => RemoteStream<Y>
+      : (...args: A) => Promise<Awaited<R>>
   : never;
 
 /** Caller-side view of a contract `T`: every method returns a Promise. */

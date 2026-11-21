@@ -9,6 +9,9 @@ expose<BrowserApi>({
     new Uint8Array(buffer).fill(value);
     return transfer(buffer, [buffer]);
   },
+  async *letters(word) {
+    yield* word;
+  },
   abortReason: (signal) =>
     new Promise((resolve) => signal.addEventListener('abort', () => resolve(String(signal.reason?.message)))),
   fail() {

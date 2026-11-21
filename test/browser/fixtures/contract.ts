@@ -4,6 +4,7 @@ export interface BrowserApi {
   fill(buffer: ArrayBuffer, value: number): ArrayBuffer;
   fail(): never;
   abortReason(signal: AbortSignal): Promise<string>;
+  letters(word: string): AsyncGenerator<string>;
 }
 
 export interface CounterApi {

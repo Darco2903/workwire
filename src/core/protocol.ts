@@ -31,10 +31,41 @@ export interface ErrorMessage extends Base {
   error: SerializedError;
 }
 
-export type Message = CallMessage | AbortMessage | ResultMessage | ErrorMessage;
+/** Caller asks for the next value of a stream. */
+export interface NextMessage extends Base {
+  type: 'next';
+}
+
+/** Caller stops a stream early (`break` in `for await`). */
+export interface ReturnMessage extends Base {
+  type: 'return';
+}
+
+/** The call returned an async iterable: values will be pulled with `next`. */
+export interface StreamMessage extends Base {
+  type: 'stream';
+}
+
+export interface YieldMessage extends Base {
+  type: 'yield';
+  value: unknown;
+  done: boolean;
+}
+
+/** Messages sent by the calling side. */
+export type RequestMessage = CallMessage | AbortMessage | NextMessage | ReturnMessage;
+/** Messages sent by the exposing side. */
+export type ReplyMessage = ResultMessage | ErrorMessage | StreamMessage | YieldMessage;
+export type Message = RequestMessage | ReplyMessage;
+
+const REQUESTS: ReadonlySet<string> = new Set<RequestMessage['type']>(['call', 'abort', 'next', 'return']);
+
+export function isRequest(message: Message): message is RequestMessage {
+  return REQUESTS.has(message.type);
+}
 
 /** Distributes `Omit` over the union so each variant keeps its own fields. */
-type Body<M> = M extends Message ? Omit<M, typeof TAG> : never;
+export type Body<M> = M extends Message ? Omit<M, typeof TAG> : never;
 
 export function message<M extends Message>(body: Body<M>): M {
   return { [TAG]: 1, ...body } as unknown as M;

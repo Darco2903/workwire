@@ -47,6 +47,13 @@ describe('browser Worker', () => {
     expect(error).toMatchObject({ name: 'SyntaxError', message: 'bad input' });
   });
 
+  it('streams values from the worker', async () => {
+    const remote = spawn();
+    const letters: string[] = [];
+    for await (const letter of remote.letters('abc')) letters.push(letter);
+    expect(letters).toEqual(['a', 'b', 'c']);
+  });
+
   it('cancels a call in the worker', async () => {
     const remote = spawn();
     const controller = new AbortController();

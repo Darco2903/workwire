@@ -1,11 +1,18 @@
 // Type-level tests: checked by `pnpm typecheck`, executed (trivially) by vitest.
 import type { MessagePort } from 'node:worker_threads';
 import { describe, expectTypeOf, it } from 'vitest';
-import { exposeOn, release, wrap, type Remote } from '../../src/core/index.ts';
+import { exposeOn, release, wrap, type Remote, type RemoteStream } from '../../src/core/index.ts';
 
 interface Api {
   add(a: number, b: number): number;
   load(url: string): Promise<{ size: number }>;
+}
+
+interface StreamApi {
+  ticks(n: number): AsyncGenerator<number>;
+  later(): Promise<AsyncIterable<string>>;
+  fail(): never;
+  cancellable(signal?: AbortSignal): Promise<void>;
 }
 
 declare const port: MessagePort;
@@ -16,6 +23,14 @@ describe('types', () => {
     expectTypeOf(remote.add).toEqualTypeOf<(a: number, b: number) => Promise<number>>();
     expectTypeOf(remote.load).returns.toEqualTypeOf<Promise<{ size: number }>>();
     expectTypeOf(remote[release]).toEqualTypeOf<() => void>();
+  });
+
+  it('maps async iterables to streams and keeps never as Promise<never>', () => {
+    const remote = {} as Remote<StreamApi>;
+    expectTypeOf(remote.ticks).toEqualTypeOf<(n: number) => RemoteStream<number>>();
+    expectTypeOf(remote.later).returns.toEqualTypeOf<RemoteStream<string>>();
+    expectTypeOf(remote.fail).returns.toEqualTypeOf<Promise<never>>();
+    expectTypeOf(remote.cancellable).parameters.toEqualTypeOf<Parameters<StreamApi['cancellable']>>();
   });
 
   it('checks arguments and unknown methods on the caller side', () => {

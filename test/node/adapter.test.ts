@@ -71,6 +71,13 @@ describe('node worker_threads', () => {
     expect((error as Error).cause).toMatchObject({ message: 'boom at load time' });
   });
 
+  it('streams values from the worker thread', async () => {
+    const remote = spawn();
+    const values: number[] = [];
+    for await (const value of remote.progress(4)) values.push(value);
+    expect(values).toEqual([0.25, 0.5, 0.75, 1]);
+  });
+
   it('cancels a call in the worker thread', async () => {
     const remote = spawn();
     const controller = new AbortController();
