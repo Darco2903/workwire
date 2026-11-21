@@ -26,6 +26,8 @@
     "vitest.config.ts"
   ],
   "exclude": [
-    "test/**/fixtures/app"
+    "test/**/fixtures/app",
+    "test/browser",
+    "examples"
   ]
 }

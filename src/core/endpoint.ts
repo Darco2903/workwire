@@ -112,7 +112,9 @@ function fromWeb(target: WebMessageTarget): Endpoint {
     },
     close() {
       if (isWorker) t.terminate!();
-      else t.close?.();
+      // Only close real MessagePorts: a worker's own `self` also has close(),
+      // and releasing a remote must not shut down the current worker.
+      else if (typeof t.start === 'function') t.close?.();
     },
   };
 }

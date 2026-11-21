@@ -1,0 +1,16 @@
+{
+  "name": "worker-helper-vite-example",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@darco2903/worker-helper": "workspace:*"
+  },
+  "devDependencies": {
+    "vite": "^8.3.8"
+  }
+}

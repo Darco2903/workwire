@@ -5,7 +5,7 @@ import { existsSync, readdirSync, rmSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { beforeAll, describe, expect, it } from 'vitest';
 
-const root = fileURLToPath(new URL('../..', import.meta.url));
+const root = fileURLToPath(new URL('../..', import.meta.url)); // package built by global-setup
 const appDir = fileURLToPath(new URL('./fixtures/app/', import.meta.url));
 const expected = { greet: 'hello worker', sum: 6 };
 
@@ -15,7 +15,6 @@ function run(entry: string): unknown {
 
 describe('packaged usage', () => {
   beforeAll(() => {
-    execFileSync('pnpm', ['-s', 'build'], { cwd: root });
     rmSync(`${appDir}dist`, { recursive: true, force: true });
     execFileSync(`${root}node_modules/.bin/tsc`, ['-p', `${appDir}tsconfig.json`], { cwd: root });
   }, 60_000);

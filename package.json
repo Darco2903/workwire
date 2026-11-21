@@ -33,7 +33,7 @@
   },
   "scripts": {
     "build": "rm -rf dist && tsc -p tsconfig.build.json",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.browser.json",
     "test": "vitest run",
     "test:watch": "vitest"
   },
@@ -46,7 +46,10 @@
   ],
   "devDependencies": {
     "@types/node": "^24.19.2",
+    "@vitest/browser-playwright": "^5.1.1",
+    "playwright": "^1.65.1",
     "typescript": "^7.0.2",
+    "vite": "^8.3.8",
     "vitest": "^5.1.1"
   }
 }
