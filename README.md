@@ -153,7 +153,7 @@ next call. Calls are never retried. `pool[release]()` terminates every worker.
 
 ```sh
 pnpm install
-pnpm typecheck   # node + browser tsconfigs
+pnpm check       # node + browser tsconfigs
 pnpm test        # unit, real worker_threads, real Chromium (Playwright), Vite example
 pnpm build
 ```

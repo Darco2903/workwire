@@ -2,11 +2,29 @@
   "name": "@darco2903/worker-helper",
   "version": "0.1.0",
   "description": "Typed RPC for Web Workers and Node worker_threads, with build-friendly worker URLs.",
+  "keywords": [
+    "worker",
+    "web-worker",
+    "worker_threads",
+    "rpc",
+    "typescript"
+  ],
+  "author": "Darco2903",
+  "license": "MIT",
+  "homepage": "https://github.com/Darco2903/worker-helper#readme",
+  "bugs": {
+    "url": "https://github.com/Darco2903/worker-helper/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Darco2903/worker-helper.git"
+  },
   "type": "module",
   "sideEffects": false,
   "engines": {
     "node": ">=22.18"
   },
+  "packageManager": "pnpm@12.21.0",
   "files": [
     "dist",
     "src"
@@ -34,17 +52,11 @@
   },
   "scripts": {
     "build": "rm -rf dist && tsc -p tsconfig.build.json",
-    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.browser.json",
+    "check": "tsc --noEmit && tsc --noEmit -p tsconfig.browser.json",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "prepack": "pnpm build"
   },
-  "keywords": [
-    "worker",
-    "web-worker",
-    "worker_threads",
-    "rpc",
-    "typescript"
-  ],
   "devDependencies": {
     "@types/node": "^24.19.2",
     "@vitest/browser-playwright": "^5.1.1",
@@ -52,5 +64,8 @@
     "typescript": "^7.0.2",
     "vite": "^8.3.8",
     "vitest": "^5.1.1"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

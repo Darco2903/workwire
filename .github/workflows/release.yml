@@ -1,0 +1,79 @@
+name: Release
+
+on:
+    push:
+        tags:
+            - "v*" # Trigger on version tags
+
+permissions:
+    id-token: write
+    contents: write
+
+env:
+    NODE_VERSION: 24
+
+jobs:
+    check:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v5
+
+            - name: Check tag matches package.json version
+              run: |
+                  TAG_VERSION="${GITHUB_REF_NAME#v}"
+                  PKG_VERSION="$(jq -r '.version' package.json)"
+
+                  echo "Tag version: $TAG_VERSION"
+                  echo "Package version: $PKG_VERSION"
+
+                  if [ "$TAG_VERSION" != "$PKG_VERSION" ]; then
+                    echo "❌ Tag version does not match package.json version"
+                    exit 1
+                  fi
+
+    #
+
+    test:
+        needs: [check]
+        uses: ./.github/workflows/check.yml
+        permissions:
+            contents: read
+
+    #
+
+    release:
+        needs: [test]
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v5
+
+            - name: Install pnpm
+              uses: pnpm/action-setup@v4
+
+            - name: Use Node.js ${{ env.NODE_VERSION }}
+              uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+                  cache: "pnpm"
+
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
+
+            - name: Pack project
+              run: pnpm pack
+
+            - name: Upload release asset
+              uses: softprops/action-gh-release@v2
+              with:
+                  files: "*.tgz"
+                  generate_release_notes: true
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Publish to NPM
+              shell: bash
+              run: pnpm publish --access public --no-git-checks
