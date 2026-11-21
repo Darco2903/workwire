@@ -1,7 +1,7 @@
 import type { SerializedError } from './errors.ts';
 
 /** Marker so unrelated messages on a shared channel are ignored. */
-export const TAG = '__workerHelper';
+export const TAG = '__workwire';
 
 interface Base {
   [TAG]: 1;

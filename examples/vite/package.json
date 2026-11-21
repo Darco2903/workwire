@@ -1,5 +1,5 @@
 {
-  "name": "worker-helper-vite-example",
+  "name": "workwire-vite-example",
   "private": true,
   "type": "module",
   "scripts": {
@@ -8,7 +8,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@darco2903/worker-helper": "workspace:*"
+    "@darco2903/workwire": "workspace:*"
   },
   "devDependencies": {
     "vite": "^8.3.8"

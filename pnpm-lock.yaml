@@ -196,7 +196,7 @@ importers:
 
   examples/vite:
     dependencies:
-      '@darco2903/worker-helper':
+      '@darco2903/workwire':
         specifier: workspace:*
         version: link:../..
     devDependencies:

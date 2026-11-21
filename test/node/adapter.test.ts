@@ -102,7 +102,7 @@ describe('node worker_threads', () => {
 });
 
 describe('resolveWorkerUrl', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'worker-helper-'));
+  const dir = mkdtempSync(join(tmpdir(), 'workwire-'));
   const url = (name: string) => pathToFileURL(join(dir, name));
   afterAll(() => rmSync(dir, { recursive: true, force: true }));
 

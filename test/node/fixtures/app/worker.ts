@@ -1,4 +1,4 @@
-import { expose } from '@darco2903/worker-helper';
+import { expose } from '@darco2903/workwire';
 import type { AppApi } from './contract.ts';
 
 expose<AppApi>({

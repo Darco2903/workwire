@@ -1,6 +1,6 @@
 // Written exactly as an end user would: one source, runnable both with
 // `node main.ts` (type stripping) and as `tsc` output.
-import { createWorker, release, wrap } from '@darco2903/worker-helper';
+import { createWorker, release, wrap } from '@darco2903/workwire';
 import type { AppApi } from './contract.ts';
 
 const app = wrap<AppApi>(createWorker(new URL('./worker.ts', import.meta.url)));

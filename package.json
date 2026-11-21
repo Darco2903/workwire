@@ -1,5 +1,5 @@
 {
-  "name": "@darco2903/worker-helper",
+  "name": "@darco2903/workwire",
   "version": "0.1.0",
   "description": "Typed RPC for Web Workers and Node worker_threads, with build-friendly worker URLs.",
   "keywords": [
@@ -11,13 +11,13 @@
   ],
   "author": "Darco2903",
   "license": "MIT",
-  "homepage": "https://github.com/Darco2903/worker-helper#readme",
+  "homepage": "https://github.com/Darco2903/workwire#readme",
   "bugs": {
-    "url": "https://github.com/Darco2903/worker-helper/issues"
+    "url": "https://github.com/Darco2903/workwire/issues"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Darco2903/worker-helper.git"
+    "url": "https://github.com/Darco2903/workwire.git"
   },
   "type": "module",
   "sideEffects": false,

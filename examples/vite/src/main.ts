@@ -1,4 +1,4 @@
-import { wrap } from '@darco2903/worker-helper';
+import { wrap } from '@darco2903/workwire';
 import type { PrimesApi } from './contract.ts';
 
 // Keep the literal `new Worker(new URL(...), { type: 'module' })` form:

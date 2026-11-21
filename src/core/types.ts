@@ -8,7 +8,7 @@ export type AnyFunction = (...args: any[]) => any;
 export type Contract<T> = { [K in keyof T]: AnyFunction };
 
 /** Calling side symbol that releases the remote (and terminates the worker). */
-export const release: unique symbol = Symbol.for('workerHelper.release');
+export const release: unique symbol = Symbol.for('workwire.release');
 
 /**
  * Caller-side result of a method that returns an async iterable (e.g. an

@@ -1,4 +1,4 @@
-# @darco2903/worker-helper
+# @darco2903/workwire
 
 Typed RPC for **Web Workers** and **Node `worker_threads`**, with worker URLs that survive `tsc`.
 
@@ -11,7 +11,7 @@ Typed RPC for **Web Workers** and **Node `worker_threads`**, with worker URLs th
 - Same import in the browser and in Node, no `lib: ["webworker"]` needed.
 
 ```sh
-pnpm add @darco2903/worker-helper
+pnpm add @darco2903/workwire
 ```
 
 ESM only. Node ≥ 22.18, modern browsers, any bundler that understands `new Worker(new URL(...))` (Vite, webpack 5, Parcel, Rspack).
@@ -29,7 +29,7 @@ export interface MathApi {
 
 ```ts
 // math.worker.ts
-import { expose } from '@darco2903/worker-helper';
+import { expose } from '@darco2903/workwire';
 import type { MathApi } from './contract.ts';
 
 expose<MathApi>({
@@ -46,7 +46,7 @@ expose<MathApi>({
 **Browser** (keep the literal `new Worker(new URL(...))` form, it's what bundlers detect):
 
 ```ts
-import { wrap } from '@darco2903/worker-helper';
+import { wrap } from '@darco2903/workwire';
 import type { MathApi } from './contract.ts';
 
 const math = wrap<MathApi>(new Worker(new URL('./math.worker.ts', import.meta.url), { type: 'module' }));
@@ -58,7 +58,7 @@ for await (const p of math.progress(4)) console.log(p);
 **Node** (use `createWorker` instead of `new Worker`):
 
 ```ts
-import { createWorker, wrap } from '@darco2903/worker-helper';
+import { createWorker, wrap } from '@darco2903/workwire';
 import type { MathApi } from './contract.ts';
 
 const math = wrap<MathApi>(createWorker(new URL('./math.worker.ts', import.meta.url)));
@@ -70,7 +70,7 @@ when it can't find the `.ts` file, which is what happens after `tsc`: it never r
 `node main.ts` and with `tsc && node dist/main.js`. (`.mts`/`.cts` map to `.mjs`/`.cjs`.)
 
 The package's `exports` pick the right build automatically (`node` condition vs. `default`). You can also import
-`@darco2903/worker-helper/node` or `@darco2903/worker-helper/browser` explicitly.
+`@darco2903/workwire/node` or `@darco2903/workwire/browser` explicitly.
 
 ## TypeScript setup
 
@@ -158,4 +158,4 @@ pnpm test        # unit, real worker_threads, real Chromium (Playwright), Vite e
 pnpm build
 ```
 
-`examples/vite` is a small app using the package as a dependency (`pnpm --filter worker-helper-vite-example dev`).
+`examples/vite` is a small app using the package as a dependency (`pnpm --filter workwire-vite-example dev`).

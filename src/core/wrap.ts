@@ -20,7 +20,7 @@ interface Pending {
   signals: readonly AbortSignal[];
 }
 
-const STREAM = Symbol('workerHelper.stream');
+const STREAM = Symbol('workwire.stream');
 type RemoteIterator = AsyncIterableIterator<unknown> & { [STREAM]: true };
 
 /**

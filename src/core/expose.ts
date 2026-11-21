@@ -36,7 +36,7 @@ function asError(thrown: unknown): Error {
 /**
  * Serve `api` over `target`. Returns a function that stops serving.
  *
- * The platform entries (`@darco2903/worker-helper`) provide `expose()` with a
+ * The platform entries (`@darco2903/workwire`) provide `expose()` with a
  * default target (`self` / `parentPort`).
  */
 export function exposeOn<T extends Contract<T>>(api: T, target: MessageTarget): () => void {
