@@ -47,6 +47,15 @@ describe('browser Worker', () => {
     expect(error).toMatchObject({ name: 'SyntaxError', message: 'bad input' });
   });
 
+  it('cancels a call in the worker', async () => {
+    const remote = spawn();
+    const controller = new AbortController();
+    const call = remote.abortReason(controller.signal);
+    await remote.add(0, 0);
+    controller.abort(new Error('stop'));
+    await expect(call).rejects.toThrow('stop');
+  });
+
   it('rejects calls when the worker fails to load', async () => {
     const worker = new Worker(new URL('./fixtures/broken.worker.ts', import.meta.url), { type: 'module' });
     const remote = keep(wrap<BrowserApi>(worker));

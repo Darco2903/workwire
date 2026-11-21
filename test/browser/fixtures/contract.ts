@@ -3,6 +3,7 @@ export interface BrowserApi {
   inWorker(): boolean;
   fill(buffer: ArrayBuffer, value: number): ArrayBuffer;
   fail(): never;
+  abortReason(signal: AbortSignal): Promise<string>;
 }
 
 export interface CounterApi {

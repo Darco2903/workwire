@@ -12,6 +12,13 @@ export interface CallMessage extends Base {
   type: 'call';
   method: string;
   args: unknown[];
+  /** Indexes of arguments that were AbortSignals (sent as `null`). */
+  signals?: number[];
+}
+
+export interface AbortMessage extends Base {
+  type: 'abort';
+  reason: SerializedError;
 }
 
 export interface ResultMessage extends Base {
@@ -24,7 +31,7 @@ export interface ErrorMessage extends Base {
   error: SerializedError;
 }
 
-export type Message = CallMessage | ResultMessage | ErrorMessage;
+export type Message = CallMessage | AbortMessage | ResultMessage | ErrorMessage;
 
 /** Distributes `Omit` over the union so each variant keeps its own fields. */
 type Body<M> = M extends Message ? Omit<M, typeof TAG> : never;

@@ -16,4 +16,6 @@ expose<TestApi>({
   },
   crash: (code) => process.exit(code),
   sleep: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
+  waitForAbort: (signal) =>
+    new Promise((_, reject) => signal.addEventListener('abort', () => reject(new Error(`aborted: ${signal.reason.message}`)))),
 });

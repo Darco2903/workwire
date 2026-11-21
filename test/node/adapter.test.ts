@@ -71,6 +71,15 @@ describe('node worker_threads', () => {
     expect((error as Error).cause).toMatchObject({ message: 'boom at load time' });
   });
 
+  it('cancels a call in the worker thread', async () => {
+    const remote = spawn();
+    const controller = new AbortController();
+    const call = remote.waitForAbort(controller.signal);
+    await remote.add(0, 0);
+    controller.abort(new Error('stop'));
+    await expect(call).rejects.toThrow('stop');
+  });
+
   it('release() terminates the worker', async () => {
     const worker = createWorker(workerUrl);
     const remote = wrap<TestApi>(worker);

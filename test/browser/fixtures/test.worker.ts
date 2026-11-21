@@ -9,6 +9,8 @@ expose<BrowserApi>({
     new Uint8Array(buffer).fill(value);
     return transfer(buffer, [buffer]);
   },
+  abortReason: (signal) =>
+    new Promise((resolve) => signal.addEventListener('abort', () => resolve(String(signal.reason?.message)))),
   fail() {
     throw new SyntaxError('bad input');
   },
