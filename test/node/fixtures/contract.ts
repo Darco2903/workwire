@@ -6,6 +6,8 @@ export interface TestApi {
   crash(code: number): void;
   sleep(ms: number): Promise<void>;
   waitForAbort(signal: AbortSignal): Promise<string>;
-  progress(steps: number): AsyncGenerator<number>;
+  /** How many times `waitForAbort` was called in this worker. */
+  waitForAbortCalls(): number;
+  progress(steps: number, signal?: AbortSignal): AsyncGenerator<number>;
   slowThreadId(ms: number): Promise<number>;
 }

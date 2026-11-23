@@ -10,7 +10,7 @@ import {
   type NextMessage,
   type ReturnMessage,
 } from './protocol.ts';
-import { isAbortSignal } from './signal.ts';
+import { isAbortSignal, watchSignals } from './signal.ts';
 import { collectTransfers } from './transfer.ts';
 import { release, type Remote } from './types.ts';
 
@@ -20,8 +20,15 @@ interface Pending {
   signals: readonly AbortSignal[];
 }
 
-const STREAM = Symbol('workwire.stream');
-type RemoteIterator = AsyncIterableIterator<unknown> & { [STREAM]: true };
+/** Marks the iterator returned for a streaming call. @internal */
+export const STREAM = Symbol('workwire.stream');
+/** @internal */
+export type RemoteIterator = AsyncIterableIterator<unknown> & { [STREAM]: true };
+
+/** @internal */
+export function isRemoteIterator(value: unknown): value is RemoteIterator {
+  return (value as RemoteIterator | undefined)?.[STREAM] === true;
+}
 
 /**
  * A call's result is a regular Promise that is also async-iterable, so
@@ -32,7 +39,7 @@ export function callResult(promise: Promise<unknown>, method: string): Promise<u
   return Object.assign(promise, {
     [Symbol.asyncIterator](): AsyncIterator<unknown> {
       const stream = promise.then((value) => {
-        if ((value as RemoteIterator | undefined)?.[STREAM]) return value as RemoteIterator;
+        if (isRemoteIterator(value)) return value;
         throw new TypeError(`${method}() did not return an async iterable`);
       });
       return {
@@ -120,15 +127,6 @@ export function wrap<T>(target: MessageTarget): Remote<T> {
     }
   }
 
-  /** Call `onAbort` once when any of `signals` aborts. Returns a cleanup function. */
-  function watch(signals: readonly AbortSignal[], onAbort: (reason: unknown) => void): () => void {
-    const listener = (event: Event) => onAbort((event.target as AbortSignal).reason);
-    for (const signal of signals) signal.addEventListener('abort', listener, { once: true });
-    return () => {
-      for (const signal of signals) signal.removeEventListener('abort', listener);
-    };
-  }
-
   function call(method: string, args: unknown[]): Promise<unknown> {
     // AbortSignals cannot be cloned: send their positions, the other side
     // substitutes a signal of its own and we forward the abort.
@@ -150,7 +148,7 @@ export function wrap<T>(target: MessageTarget): Remote<T> {
     if (!signals.length) return reply;
 
     return new Promise((resolve, reject) => {
-      const unwatch = watch(signals, (reason) => {
+      const unwatch = watchSignals(signals, (reason) => {
         if (!pending.has(id)) return;
         pending.delete(id);
         reject(reason);
@@ -169,7 +167,7 @@ export function wrap<T>(target: MessageTarget): Remote<T> {
       done = true;
       unwatch();
     };
-    const unwatch = watch(signals, (reason) => {
+    const unwatch = watchSignals(signals, (reason) => {
       if (done) return;
       failure = { reason };
       end();

@@ -131,15 +131,22 @@ at a time, so a slow consumer applies backpressure. `break` closes the worker-si
 run), errors reject the current iteration, and an `AbortSignal` argument cancels the stream. To transfer a
 `ReadableStream` as a whole instead, mark it: `transfer(stream, [stream])`.
 
-### `createPool<T>(factory, { size? })` → `Remote<T>`
+### `createPool<T>(factory, { size?, concurrency? })` → `Remote<T>`
 
 ```ts
 const pool = createPool<MathApi>(() => createWorker(new URL('./math.worker.ts', import.meta.url)), { size: 4 });
 ```
 
-Same interface as `wrap`. Workers are created lazily (only when all are busy), up to `size`
-(default `navigator.hardwareConcurrency`). Calls go to the least busy worker, and a dead worker is replaced on the
-next call. Calls are never retried. `pool[release]()` terminates every worker.
+Same interface as `wrap`. Each worker runs at most `concurrency` calls at once (default `1`); further calls wait in
+a FIFO queue and start on the first worker that frees up, so a quick call never waits behind a slow one while
+another worker is idle. Workers are created lazily (only when none has room), up to `size`
+(default `navigator.hardwareConcurrency`).
+
+- A stream occupies its worker until it ends, throws, is closed (`break`) or aborted.
+- Aborting a queued call removes it from the queue: it never reaches a worker.
+- A dead worker is replaced. Its in-flight calls reject with `WorkerClosedError` (calls are never retried); queued
+  calls run on the replacement.
+- `pool[release]()` rejects queued calls and terminates every worker.
 
 ## Limits
 
@@ -148,6 +155,7 @@ next call. Calls are never retried. `pool[release]()` terminates every worker.
 - Generic methods lose their type parameters on the caller's side.
 - A contract method named `then` can't be called through the proxy (the proxy must not look like a Promise).
 - A stream that is never iterated to the end, `break`, or abort stays open in the worker until the worker is released.
+  In a pool, it also keeps its worker's slot, so other calls can't use that worker.
 
 ## Development
 

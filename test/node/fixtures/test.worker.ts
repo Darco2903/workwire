@@ -2,6 +2,8 @@ import { threadId } from 'node:worker_threads';
 import { expose, transfer } from '../../../src/node/index.ts';
 import type { TestApi } from './contract.ts';
 
+let waitForAbortCalls = 0;
+
 expose<TestApi>({
   add: (a, b) => a + b,
   threadId: () => threadId,
@@ -20,6 +22,11 @@ expose<TestApi>({
   async *progress(steps) {
     for (let i = 1; i <= steps; i++) yield i / steps;
   },
-  waitForAbort: (signal) =>
-    new Promise((_, reject) => signal.addEventListener('abort', () => reject(new Error(`aborted: ${signal.reason.message}`)))),
+  waitForAbort(signal) {
+    waitForAbortCalls++;
+    return new Promise((_, reject) =>
+      signal.addEventListener('abort', () => reject(new Error(`aborted: ${signal.reason.message}`))),
+    );
+  },
+  waitForAbortCalls: () => waitForAbortCalls,
 });
